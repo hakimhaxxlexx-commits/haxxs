@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Viewer - Logitech Webcam</title>
+  <title>3D Viewer & Bongkaran - Logitech Webcam</title>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
   <style>
     :root {
       --bg-color: #0f172a;
-      --panel-bg: rgba(30, 41, 59, 0.85);
+      --panel-bg: rgba(15, 23, 42, 0.88);
+      --card-bg: rgba(30, 41, 59, 0.75);
       --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.16);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.12);
     }
 
     * {
@@ -22,100 +25,268 @@
     }
 
     body {
-      background: radial-gradient(circle at center, #1e293b 0%, var(--bg-color) 100%);
+      background: radial-gradient(circle at 35% 40%, #1e293b 0%, var(--bg-color) 100%);
       color: var(--text-main);
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     header {
-      padding: 1rem 1.5rem;
+      padding: 0.9rem 1.5rem;
       background: var(--panel-bg);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 10;
+      gap: 1rem;
+      z-index: 20;
     }
 
     header h1 {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 600;
-      letter-spacing: 0.5px;
     }
 
-    header span {
-      font-size: 0.8rem;
+    .badge {
+      font-size: 0.78rem;
       color: var(--accent);
-      background: rgba(56, 189, 248, 0.15);
-      padding: 0.25rem 0.6rem;
+      background: var(--accent-soft);
+      padding: 0.25rem 0.65rem;
       border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      white-space: nowrap;
     }
 
-    main {
-      position: relative;
+    .workspace {
       flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      min-height: calc(100vh - 96px);
+    }
+
+    .viewer-stage {
+      position: relative;
+      min-height: 460px;
       width: 100%;
+      height: 100%;
     }
 
     model-viewer {
       width: 100%;
       height: 100%;
+      min-height: 460px;
       --poster-color: transparent;
+      transition: transform 0.35s ease;
     }
 
-    .controls {
+    .viewer-stage.exploded-effect model-viewer {
+      filter: contrast(1.06) saturate(1.12);
+    }
+
+    /* Hotspot interaktif */
+    .hotspot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.75rem;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35);
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .hotspot:hover,
+    .hotspot.active {
+      transform: translate(-50%, -50%) scale(1.2);
+      background: #ffffff;
+    }
+
+    .hotspot-label {
+      display: none;
       position: absolute;
-      bottom: 1.5rem;
+      bottom: 32px;
       left: 50%;
       transform: translateX(-50%);
       background: var(--panel-bg);
-      backdrop-filter: blur(10px);
-      padding: 0.75rem 1.25rem;
+      color: var(--text-main);
+      padding: 0.35rem 0.65rem;
+      border-radius: 0.45rem;
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+      pointer-events: none;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+    }
+
+    .hotspot:hover .hotspot-label,
+    .hotspot.active .hotspot-label {
+      display: block;
+    }
+
+    /* Panel kontrol bawah pada viewer */
+    .controls {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(92%, 680px);
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      padding: 0.85rem 1.1rem;
       border-radius: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
       display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      z-index: 15;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+    }
+
+    .explode-row {
+      display: flex;
+      align-items: center;
       gap: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .explode-row label {
+      white-space: nowrap;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .explode-value {
+      min-width: 44px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-muted);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
       flex-wrap: wrap;
       justify-content: center;
-      z-index: 10;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     }
 
     button {
       background: rgba(255, 255, 255, 0.08);
       color: var(--text-main);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 0.5rem 0.9rem;
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.8rem;
       border-radius: 0.5rem;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       transition: all 0.2s ease;
     }
 
-    button:hover {
-      background: var(--accent);
-      color: #0f172a;
-      font-weight: 600;
-    }
-
+    button:hover,
     button.active {
       background: var(--accent);
       color: #0f172a;
       font-weight: 600;
+      border-color: var(--accent);
+    }
+
+    /* Sidebar penjelasan bongkaran */
+    aside {
+      background: var(--panel-bg);
+      border-left: 1px solid var(--border);
+      padding: 1.25rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    aside h2 {
+      font-size: 1rem;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    .status-banner {
+      background: var(--accent-soft);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 0.65rem;
+      padding: 0.75rem;
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .part-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .part-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.7rem;
+      padding: 0.8rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .part-card:hover,
+    .part-card.active {
+      border-color: var(--accent);
+      transform: translateX(2px);
+    }
+
+    .part-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.35rem;
+    }
+
+    .part-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .part-tag {
+      font-size: 0.72rem;
+      color: var(--accent);
+      background: rgba(15, 23, 42, 0.65);
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.4rem;
+    }
+
+    .part-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
     }
 
     footer {
-      padding: 0.75rem 1.5rem;
-      background: rgba(15, 23, 42, 0.95);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.7rem 1.5rem;
+      background: var(--bg-color);
+      border-top: 1px solid var(--border);
       font-size: 0.75rem;
       color: var(--text-muted);
       text-align: center;
-      z-index: 10;
     }
 
     footer a {
@@ -126,38 +297,126 @@
     footer a:hover {
       text-decoration: underline;
     }
+
+    @media (max-width: 900px) {
+      .workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: 62vh auto;
+      }
+
+      aside {
+        border-left: none;
+        border-top: 1px solid var(--border);
+      }
+    }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Logitech Webcam — 3D Interactive</h1>
-    <span>glTF 2.0 Model</span>
+    <h1>Logitech Webcam — Simulasi Bongkaran & Penjelasan 3D</h1>
+    <span class="badge">Folder: binatang/</span>
   </header>
 
-  <main>
-    <model-viewer
-      id="webcam-viewer"
-      src="binatang/scene.gltf"
-      alt="Model 3D Logitech Webcam"
-      camera-controls
-      auto-rotate
-      auto-rotate-delay="1000"
-      shadow-intensity="1.2"
-      exposure="1"
-      environment-image="neutral"
-      ar
-      ar-modes="webxr scene-viewer quick-look">
-    </model-viewer>
+  <div class="workspace">
+    <section class="viewer-stage" id="viewer-stage">
+      <model-viewer
+        id="webcam-viewer"
+        src="binatang/scene.gltf"
+        alt="Model 3D Logitech Webcam"
+        camera-controls
+        auto-rotate
+        auto-rotate-delay="1200"
+        shadow-intensity="1.25"
+        exposure="1.05"
+        environment-image="neutral"
+        ar
+        ar-modes="webxr scene-viewer quick-look">
 
-    <div class="controls">
-      <button id="btn-rotate" class="active" onclick="toggleRotate()">Auto-Rotate: ON</button>
-      <button onclick="setCamera('0deg 75deg 105%')">Tampak Depan</button>
-      <button onclick="setCamera('90deg 75deg 105%')">Tampak Samping</button>
-      <button onclick="setCamera('180deg 75deg 105%')">Tampak Belakang</button>
-      <button onclick="resetView()">Reset Kamera</button>
-    </div>
-  </main>
+        <!-- Titik Hotspot Bagian Webcam -->
+        <button class="hotspot" slot="hotspot-lens" data-position="0m 0.05m 0.06m" data-normal="0m 0m 1m" onclick="selectPart('lens', this)">
+          1
+          <span class="hotspot-label">Modul Lensa & Sensor</span>
+        </button>
+
+        <button class="hotspot" slot="hotspot-housing" data-position="0.03m 0.05m 0m" data-normal="1m 0m 0m" onclick="selectPart('housing', this)">
+          2
+          <span class="hotspot-label">Casing Utama & PCB</span>
+        </button>
+
+        <button class="hotspot" slot="hotspot-hinge" data-position="0m 0.025m -0.02m" data-normal="0m 0m -1m" onclick="selectPart('hinge', this)">
+          3
+          <span class="hotspot-label">Engsel & Penjepit Monitor</span>
+        </button>
+      </model-viewer>
+
+      <div class="controls">
+        <div class="explode-row">
+          <label for="explode-slider">Tingkat Bongkar:</label>
+          <input id="explode-slider" type="range" min="0" max="100" value="0" oninput="setExplodeLevel(this.value)" />
+          <span class="explode-value" id="explode-percent">0%</span>
+        </div>
+
+        <div class="btn-group">
+          <button id="btn-toggle-explode" class="active" onclick="toggleExplodePreset()">Bongkar Kamera</button>
+          <button id="btn-rotate" onclick="toggleRotate()">Auto-Rotate: OFF</button>
+          <button onclick="setCamera('0deg 75deg 105%')">Depan</button>
+          <button onclick="setCamera('90deg 72deg 115%')">Samping</button>
+          <button onclick="setCamera('180deg 75deg 105%')">Belakang</button>
+          <button onclick="resetAll()">Reset</button>
+        </div>
+      </div>
+    </section>
+
+    <aside>
+      <h2>Penjelasan Bongkaran Kamera</h2>
+      <div class="status-banner" id="mode-explanation">
+        <strong>Status Terakit (0%):</strong> Webcam berada dalam posisi normal. Geser slider <em>Tingkat Bongkar</em> atau klik <strong>Bongkar Kamera</strong> untuk melihat sudut inspeksi dan penjelasan setiap bagian.
+      </div>
+
+      <div class="part-list" id="part-list">
+        <div class="part-card active" data-part="lens" data-orbit="22deg 74deg 72%" onclick="selectPart('lens')">
+          <div class="part-header">
+            <span class="part-title">1. Lensa Optik & Sensor Gambar</span>
+            <span class="part-tag">Bagian Depan</span>
+          </div>
+          <p class="part-desc">
+            Memfokuskan cahaya masuk ke sensor CMOS/CCD dan mengatur ketajaman gambar serta bidang pandang (*field of view*) saat perekaman atau panggilan video.
+          </p>
+        </div>
+
+        <div class="part-card" data-part="housing" data-orbit="85deg 70deg 85%" onclick="selectPart('housing')">
+          <div class="part-header">
+            <span class="part-title">2. Casing Utama & Komponen Internal</span>
+            <span class="part-tag">Badan Kamera</span>
+          </div>
+          <p class="part-desc">
+            Melindungi papan sirkuit utama (*mainboard*), mikrofon internal, serta jalur kabel sinyal video dari benturan, debu, dan pantulan cahaya berlebih.
+          </p>
+        </div>
+
+        <div class="part-card" data-part="hinge" data-orbit="155deg 78deg 92%" onclick="selectPart('hinge')">
+          <div class="part-header">
+            <span class="part-title">3. Engsel Putar & Klip Dudukan</span>
+            <span class="part-tag">Bagian Belakang/Bawah</span>
+          </div>
+          <p class="part-desc">
+            Menopang bodi webcam agar dapat dijepitkan pada tepi monitor, laptop, atau dipasang pada ulir *tripod*, sekaligus memungkinkan kemiringan vertikal (*tilt*).
+          </p>
+        </div>
+
+        <div class="part-card" data-part="cable" data-orbit="-65deg 80deg 95%" onclick="selectPart('cable')">
+          <div class="part-header">
+            <span class="part-title">4. Jalur Konektivitas & Daya</span>
+            <span class="part-tag">Koneksi</span>
+          </div>
+          <p class="part-desc">
+            Menyalurkan daya listrik serta data video/audio terkompresi dari modul kamera ke perangkat komputer melalui antarmuka USB.
+          </p>
+        </div>
+      </div>
+    </aside>
+  </div>
 
   <footer>
     This work is based on
@@ -168,7 +427,87 @@
 
   <script>
     const viewer = document.getElementById('webcam-viewer');
+    const stage = document.getElementById('viewer-stage');
+    const slider = document.getElementById('explode-slider');
+    const percentText = document.getElementById('explode-percent');
+    const btnExplode = document.getElementById('btn-toggle-explode');
     const btnRotate = document.getElementById('btn-rotate');
+    const statusBanner = document.getElementById('mode-explanation');
+
+    function setExplodeLevel(rawVal) {
+      const val = Number(rawVal);
+      percentText.textContent = `${val}%`;
+      viewer.autoRotate = false;
+      btnRotate.textContent = 'Auto-Rotate: OFF';
+      btnRotate.classList.remove('active');
+
+      if (val === 0) {
+        stage.classList.remove('exploded-effect');
+        viewer.cameraOrbit = 'auto auto auto';
+        viewer.fieldOfView = 'auto';
+        btnExplode.textContent = 'Bongkar Kamera';
+        btnExplode.classList.add('active');
+        statusBanner.innerHTML = '<strong>Status Terakit (0%):</strong> Webcam berada dalam posisi normal. Geser slider <em>Tingkat Bongkar</em> atau klik <strong>Bongkar Kamera</strong> untuk melihat sudut inspeksi dan penjelasan setiap bagian.';
+        return;
+      }
+
+      stage.classList.add('exploded-effect');
+      btnExplode.textContent = 'Rakit Kembali';
+      btnExplode.classList.remove('active');
+
+      // Menggeser sudut pandang & jarak kamera secara bertahap untuk simulasi inspeksi bongkaran
+      const azimuth = Math.round((val / 100) * 65);
+      const polar = Math.round(75 - (val / 100) * 18);
+      const radius = Math.round(115 - (val / 100) * 32);
+      viewer.cameraOrbit = `${azimuth}deg ${polar}deg ${radius}%`;
+
+      if (val < 40) {
+        statusBanner.innerHTML = `<strong>Bongkar Ringan (${val}%):</strong> Sudut pandang bergeser untuk memeriksa celah sambungan antara <em>casing</em> depan, bodi utama, dan engsel dudukan.`;
+      } else if (val < 75) {
+        statusBanner.innerHTML = `<strong>Bongkar Menengah (${val}%):</strong> Fokus pada area transisi bodi kamera dan mekanisme engsel untuk mengamati struktur penopang serta orientasi lensa.`;
+      } else {
+        statusBanner.innerHTML = `<strong>Bongkar Penuh (${val}%):</strong> Mode inspeksi dekat (<em>close-up</em>) untuk menelaah detail permukaan material, kontur lensa, dan titik tumpu engsel.`;
+      }
+    }
+
+    function toggleExplodePreset() {
+      const current = Number(slider.value);
+      const nextVal = current > 0 ? 0 : 75;
+      slider.value = nextVal;
+      setExplodeLevel(nextVal);
+    }
+
+    function selectPart(partKey, hotspotEl = null) {
+      const cards = document.querySelectorAll('.part-card');
+      const hotspots = document.querySelectorAll('.hotspot');
+      let targetOrbit = 'auto auto auto';
+
+      cards.forEach(card => {
+        const isMatch = card.dataset.part === partKey;
+        card.classList.toggle('active', isMatch);
+        if (isMatch && card.dataset.orbit) {
+          targetOrbit = card.dataset.orbit;
+        }
+      });
+
+      hotspots.forEach(hs => hs.classList.remove('active'));
+      if (hotspotEl) {
+        hotspotEl.classList.add('active');
+      }
+
+      if (Number(slider.value) === 0) {
+        slider.value = 50;
+        percentText.textContent = '50%';
+        stage.classList.add('exploded-effect');
+        btnExplode.textContent = 'Rakit Kembali';
+        btnExplode.classList.remove('active');
+      }
+
+      viewer.autoRotate = false;
+      btnRotate.textContent = 'Auto-Rotate: OFF';
+      btnRotate.classList.remove('active');
+      viewer.cameraOrbit = targetOrbit;
+    }
 
     function toggleRotate() {
       viewer.autoRotate = !viewer.autoRotate;
@@ -183,12 +522,17 @@
       viewer.cameraOrbit = orbit;
     }
 
-    function resetView() {
-      viewer.cameraOrbit = 'auto auto auto';
-      viewer.fieldOfView = 'auto';
-      viewer.autoRotate = true;
-      btnRotate.textContent = 'Auto-Rotate: ON';
-      btnRotate.classList.add('active');
+    function resetAll() {
+      slider.value = 0;
+      setExplodeLevel(0);
+      document.querySelectorAll('.hotspot').forEach(hs => hs.classList.remove('active'));
+      selectPartCardOnly('lens');
+    }
+
+    function selectPartCardOnly(partKey) {
+      document.querySelectorAll('.part-card').forEach(card => {
+        card.classList.toggle('active', card.dataset.part === partKey);
+      });
     }
   </script>
 
