@@ -1,0 +1,11 @@
+Model Information:
+* title:	Logitech Webcam
+* source:	https://sketchfab.com/3d-models/logitech-webcam-f6f8675406b7437faaf96a1f82062028
+* author:	Spencer Adam Cohen (https://sketchfab.com/SpencerCohen)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Logitech Webcam" (https://sketchfab.com/3d-models/logitech-webcam-f6f8675406b7437faaf96a1f82062028) by Spencer Adam Cohen (https://sketchfab.com/SpencerCohen) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
